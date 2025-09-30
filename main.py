@@ -58,8 +58,7 @@ class Flight:
 
     def __repr__(self):
         return (f"Flight ID: {self.flight_id}, Destination: {self.dest}, Day: {self.day}, Month: {self.month}, "
-                f"Time: {self.time}, Max Passengers: {self.max_pass}, Price: {self.price},"
-                f" PeopleQueue: {self.people_queue}, SuitCaseStack: {self.suitcase_stack}")
+                f"Time: {self.time}, Max Passengers: {self.max_pass}, Price: {self.price}")
 
 class Airport:
     def __init__(self, airport_code: str):
@@ -98,18 +97,21 @@ class Airport:
         customer_id = int(input('Enter customer id: '))
         budget = int(input('Enter your budget: '))
         customer = None
-
+        # search for the customer
         for c in self.customer_list:
             if customer_id == c.person_id:
                 customer = c
                 break
-
+        # check if customer exists
         if customer is None:
             return f"Customer is not found!"
 
         possible_flights = [f for f in self.flight_list if f.price <= budget and f.max_pass > f.people_queue.size()]
         if not possible_flights:
             return f"No flight for your budget or not free spaces"
+        # choosing a flight
+        for flight in possible_flights:
+            print(flight)
 
 
 
