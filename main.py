@@ -69,8 +69,8 @@ class Airport:
 
     def add_flight(self):
         print('***Flight Addition***')
-        flight_id = int(input('Enter flight id: '))
-        dest = input('Enter destination: ')
+        flight_id = int(input('Enter Flight ID: '))
+        dest = input('Enter Destination: ')
         day = int(input('Enter day date (number): '))
         month = int(input('Enter month (number): '))
         time = int(input('Enter time (number): '))
@@ -84,7 +84,7 @@ class Airport:
         p_id = int(input('Enter your ID: '))
         name = input('Enter your name: ')
         age = int(input('Enter your age: '))
-        vip = None
+        vip = True
         choice = input('Are you a vip? type "yes" or "no": ')
         if choice.lower() == 'yes':
             vip = True
@@ -94,7 +94,7 @@ class Airport:
         self.customer_list.append(customer)
 
     def choose_flight(self):
-        customer_id = int(input('Enter customer id: '))
+        customer_id = int(input('Enter Customer ID: '))
         budget = int(input('Enter your budget: '))
         customer = None
         # search for the customer
@@ -104,17 +104,112 @@ class Airport:
                 break
         # check if customer exists
         if customer is None:
-            return f"Customer is not found!"
+            return "Customer is not found!"
 
         possible_flights = [f for f in self.flight_list if f.price <= budget and f.max_pass > f.people_queue.size()]
         if not possible_flights:
-            return f"No flight for your budget or not free spaces"
+            return "No flight for your budget or not free spaces"
         # choosing a flight
         for flight in possible_flights:
             print(flight)
+        choice = int(input('Enter your flight choice: '))
+        chosen_flight = None
+        for flight in possible_flights:
+            if flight.flight_id == choice:
+                chosen_flight = flight
+                break
+        if chosen_flight is None:
+            return "Invalid flight choice!"
+        chosen_flight.people_queue.enqueue(customer)
+        chosen_flight.price = chosen_flight.price * 1.02
+
+        suitcase_choice = input('Are you flying with a suitcase? ("yes" or "no"): ')
+        if suitcase_choice.lower() == 'yes':
+            weight = float(input('What is the weight of the suitcase? '))
+            suitcase = Suitcase(customer, weight)
+
+            if customer.vip:
+                #If customer is VIP
+                if chosen_flight.suitcase_stack.is_empty():
+                    # If stack is empty, just pushing the suitcase
+                    chosen_flight.suitcase_stack.push(suitcase)
+                else:
+                    # Creating a temp stack to reorder
+                    temp_stack = Stack()
+                    while not chosen_flight.suitcase_stack.is_empty():
+                        top_suitcase = chosen_flight.suitcase_stack.peek()
+                        if top_suitcase.person.vip:
+                            break
+                        temp_stack.push(chosen_flight.suitcase_stack.pop())
+                    chosen_flight.suitcase_stack.push(suitcase)
+                    while not temp_stack.is_empty():
+                        chosen_flight.suitcase_stack.push(temp_stack.pop())
+            
+            else:
+                # If customer is not VIP
+                max_weight = 23 * chosen_flight.max_pass
+                current_weight = 0
+                temp_stack = Stack()
+
+                while not chosen_flight.suitcase_stack.is_empty():
+                    # Pop all the calculate max weight
+                    s = chosen_flight.suitcase_stack.pop()
+                    current_weight += s.weight
+                    temp_stack.push(s)
+
+                while not temp_stack.is_empty():
+                    # Stack restore
+                    chosen_flight.suitcase_stack.push(temp_stack.pop())
+
+                if current_weight + weight > max_weight:
+                    # Check if weight exceeded
+                    return "Suitcase cannot enter - weight limit exceeded!"
+                # Add non-vip suitcase at the top of the stack
+                chosen_flight.suitcase_stack.push(suitcase)
+        return f"{customer.name} was added to flight {chosen_flight.flight_id} to {chosen_flight.dest} successfully!"
 
 
-
+    def add_employee(self):
+        # p_id: int, name: str, age: int, hour_sal: int
+        e_id = int(input('Enter your ID: '))
+        name = input('Enter your name: ')
+        age = int(input('Enter your age: '))
+        hour_sal = int(input('Enter your hourly salary: '))
+        emp = Employee(e_id, name, age, hour_sal)
+        self.employee_list.append(emp)
+    
+    def add_workday(self):
+        employee = None
+        id_choice = int(input('Enter Employee ID: '))
+        for emp in self.employee_list:
+            if emp.p_id == id_choice:
+                employee = emp
+                break
+        if employee is None:
+            return 'No such employee!'
+        print('***Work Day Addition***')
+        day = int(input('Enter day: '))
+        month = int(input('Enter month: '))
+        work_hours = int(input('Enter amound of work hours: '))
+        wd = WorkDay(day, month, work_hours)
+        employee.work_day.append(wd)
+    
+    def employee_salary(self, e_id):
+        employee = None
+        for emp in self.employee_list:
+            if emp.p_id == e_id:
+                employee = emp
+        if employee is None:
+            return 'No such employee!'
+        month = int(input('Enter month: '))
+        total_hours = 0
+        current = employee.work_day.head
+        while current:
+            if current.value.month == month:
+                total_hours += current.value.work_hours
+            current = current.next
+        monthly_salary = total_hours * employee.hour_sal
+        return f"Employee {employee.name}'s salary for {month} is: {monthly_salary}"
 
 
 
@@ -127,6 +222,8 @@ class Airport:
 
 person = Person(1, 'Ariel', 26)
 airport = Airport('TLV')
-# airport.add_flight()
-# airport.add_customer()
+airport.add_flight()
+airport.add_flight()
+airport.add_customer()
 print(airport)
+print(airport.choose_flight())
