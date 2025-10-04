@@ -123,15 +123,15 @@ class Airport:
                 break
         if chosen_flight is None:
             return "Invalid flight choice!"
+        
+        chosen_flight.people_queue.enqueue(customer)
+        chosen_flight.price = chosen_flight.price * 1.02
 
 
         suitcase_choice = input('Are you flying with a suitcase? ("yes" or "no"): ')
         if suitcase_choice.lower() == 'yes':
             weight = float(input('What is the weight of the suitcase? '))
             suitcase = Suitcase(customer, weight)
-
-            chosen_flight.people_queue.enqueue(customer)
-            chosen_flight.price = chosen_flight.price * 1.02
 
             if customer.vip:
                 #If customer is VIP
@@ -175,9 +175,6 @@ class Airport:
 
         elif suitcase_choice.lower() == 'no':
             chosen_flight.no_suitcase_by_choice.append(customer)
-            chosen_flight.people_queue.enqueue(customer)
-            chosen_flight.price = chosen_flight.price * 1.02
-
 
         return f"{customer.name} was added to flight {chosen_flight.flight_id} to {chosen_flight.dest} successfully!"
 
@@ -195,7 +192,7 @@ class Airport:
         employee = None
         id_choice = int(input('Enter Employee ID: '))
         for emp in self.employee_list:
-            if emp.p_id == id_choice:
+            if emp.person_id == id_choice:
                 employee = emp
                 break
         if employee is None:
@@ -210,7 +207,7 @@ class Airport:
     def employee_salary(self, e_id):
         employee = None
         for emp in self.employee_list:
-            if emp.p_id == e_id:
+            if emp.person_id == e_id:
                 employee = emp
         if employee is None:
             return 'No such employee!'
@@ -222,7 +219,25 @@ class Airport:
                 total_hours += current.value.work_hours
             current = current.next
         monthly_salary = total_hours * employee.hour_sal
-        return f"Employee {employee.name}'s salary for {month} is: {monthly_salary}"
+        return monthly_salary
+    
+    def get_employee_salary(self, e_id, month):
+        employee = None
+        for emp in self.employee_list:
+            if emp.person_id == e_id:
+                employee = emp
+                break
+        if employee is None:
+            return 'No such employee!'
+        total_hours = 0
+        current = employee.work_day.head
+        while current:
+            if current.value.month == month:
+                total_hours += current.value.work_hours
+            current = current.next
+        monthly_salary = total_hours * employee.hour_sal
+        return monthly_salary
+
     
     def flight_ended(self, flight_id):
         landing_flight = None
@@ -231,8 +246,6 @@ class Airport:
                 landing_flight = flight
                 print(f'Flight {flight_id} is landing!')
                 break
-            else:
-                return f'Flight {flight_id} do not exist!'
         if landing_flight is None:
             return f'Flight {flight_id} do not exist'
         
@@ -265,6 +278,13 @@ airport = Airport('TLV')
 # airport.flight_ended(325)
 
 
+def quick_sort(lst):
+    if len(lst) <= 1:
+        return lst
+    pivot = lst[0]
+    smaller = [x for x in lst[1:] if x[1] < pivot[1]]
+    greater = [x for x in lst[1:] if x[1] >= pivot[1]]
+    return quick_sort(greater) + [pivot] + quick_sort(smaller)
 
 def menu():
     print(f"Welcome to {airport.airport_code} Airport, please select an option: ")
@@ -300,13 +320,20 @@ def menu():
             airport.add_workday()
         elif choice == '7':
             # sort salaries
-            pass
-
-
-            
+            emp_salaries = []
+            month = int(input('Enter month for salary info: '))
+            for emp in airport.employee_list:
+                salary = airport.get_employee_salary(emp.person_id, month)
+                if isinstance(salary, int):
+                    emp_salaries.append((emp.name, salary))
+            sorted_salaries = quick_sort(emp_salaries)
+            print('\nEmployee Salaries (Sorted):')
+            print(sorted_salaries)
+                
         elif choice == '8':
             e_id = int(input('Enter employee ID: '))
-            airport.employee_salary(e_id)
+            result = airport.employee_salary(e_id)
+            print(f'Monthly salary is: {result}')
 
 
-print(menu())
+menu()
