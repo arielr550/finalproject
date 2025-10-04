@@ -162,16 +162,22 @@ class Airport:
                     current_weight += s.weight
                     temp_stack.push(s)
 
-                while not temp_stack.is_empty():
-                    # Stack restore
-                    chosen_flight.suitcase_stack.push(temp_stack.pop())
 
                 if current_weight + weight > max_weight:
                     # Check if weight exceeded
+
+                    while not temp_stack.is_empty():
+                    # Stack restore
+                        chosen_flight.suitcase_stack.push(temp_stack.pop())
+
                     chosen_flight.no_suitcase_overweight.append(customer)
                     return "Suitcase cannot enter - weight limit exceeded!"
                 # Add non-vip suitcase at the top of the stack
                 chosen_flight.suitcase_stack.push(suitcase)
+
+                while not temp_stack.is_empty():
+                    # Stack restore
+                    chosen_flight.suitcase_stack.push(temp_stack.pop())
 
         elif suitcase_choice.lower() == 'no':
             chosen_flight.no_suitcase_by_choice.append(customer)
