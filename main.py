@@ -227,6 +227,7 @@ class Airport:
         monthly_salary = total_hours * employee.hour_sal
         return monthly_salary
     
+    # פונקציית עזר עם חודש כפרמטר
     def get_employee_salary(self, e_id, month):
         employee = None
         for emp in self.employee_list:
@@ -275,13 +276,6 @@ class Airport:
 
 
 airport = Airport('TLV')
-# airport.add_flight()
-# airport.add_flight()
-# airport.add_customer()
-# airport.add_customer()
-# print(airport)
-# print(airport.choose_flight())
-# airport.flight_ended(325)
 
 
 def quick_sort(lst):
