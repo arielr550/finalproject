@@ -117,11 +117,13 @@ class Airport:
         customer_id = int(input('Enter Customer ID: '))
         budget = int(input('Enter your budget: '))
         customer = None
-        # search for the customer by id
+
+        # search for the customer by ID
         for c in self.customer_list:
             if customer_id == c.person_id:
                 customer = c
                 break
+        
         # check if customer exists
         if customer is None:
             return "Customer is not found!"
@@ -130,12 +132,13 @@ class Airport:
         possible_flights = [f for f in self.flight_list if f.price <= budget and f.max_pass > f.people_queue.size()]
         if not possible_flights:
             return "No flight for your budget or not free spaces"
-        # choosing a flight
+        
+        # Display available flights
         print('\nAvailable flights:')
         for flight in possible_flights:
             print(flight)
         
-        # customer chooses flight by id
+        # customer chooses flight by ID
         choice = int(input('Enter your flight choice: '))
         chosen_flight = None
         for flight in possible_flights:
@@ -157,7 +160,6 @@ class Airport:
 
             # VIP suitcase handling (priority placement)
             if customer.vip:
-                #If customer is VIP
                 if chosen_flight.suitcase_stack.is_empty():
                     # If stack is empty, just pushing the suitcase
                     chosen_flight.suitcase_stack.push(suitcase)
@@ -188,19 +190,15 @@ class Airport:
 
 
                 if current_weight + weight > max_weight:
-                    # Check if weight exceeded
-
+                    # Restore stack and record overweight case
                     while not temp_stack.is_empty():
-                    # Stack restore
                         chosen_flight.suitcase_stack.push(temp_stack.pop())
-
                     chosen_flight.no_suitcase_overweight.append(customer)
                     return "Suitcase cannot enter - weight limit exceeded!"
+                
                 # Add non-vip suitcase at the top of the stack
                 chosen_flight.suitcase_stack.push(suitcase)
-
                 while not temp_stack.is_empty():
-                    # Stack restore
                     chosen_flight.suitcase_stack.push(temp_stack.pop())
 
         elif suitcase_choice.lower() == 'no':
@@ -272,6 +270,7 @@ class Airport:
 
     
     def flight_ended(self, flight_id):
+        """Simulates flight landing — unloads suitcases and shows who didnt bring one."""
         landing_flight = None
         for flight in self.flight_list:
             if flight.flight_id == flight_id:
