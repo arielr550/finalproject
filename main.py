@@ -1,6 +1,10 @@
 from stack_queue import Stack, Queue
 from linked_list import Node, LinkedList
 
+# ======================
+#        CLASSES
+# ======================
+
 class Person:
     def __init__(self, p_id: int, name: str, age: int):
         self.person_id = p_id
@@ -53,11 +57,10 @@ class Flight:
         self.time = time
         self.max_pass = max_passengers
         self.price = price
-        self.people_queue = Queue()
-        self.suitcase_stack = Stack()
-        # New lists for suitcase choices
-        self.no_suitcase_by_choice = []
-        self.no_suitcase_overweight = []
+        self.people_queue = Queue() # Queue of customers (FIFO)
+        self.suitcase_stack = Stack() # Stack of suitcases (LIFO)
+        self.no_suitcase_by_choice = [] # Customers who chose to fly without suitcase
+        self.no_suitcase_overweight = [] # Customers denied suitcase due to overweight
 
     def __repr__(self):
         return (f"Flight ID: {self.flight_id}, Destination: {self.dest}, Day: {self.day}, Month: {self.month}, "
@@ -70,7 +73,10 @@ class Airport:
         self.customer_list = []
         self.employee_list = []
 
+    # -------- FLIGHT MANAGEMENT --------
+
     def add_flight(self):
+        """Creates and adds a new flight to the airport's flight list. """
         print('*** Flight Addition ***')
         flight_id = int(input('Enter Flight ID: '))
         dest = input('Enter Destination: ')
@@ -82,7 +88,11 @@ class Airport:
         flight = Flight(flight_id, dest, day, month, time, max_p, price)
         self.flight_list.append(flight)
 
+
+        # -------- CUSTOMER MANAGEMENT --------
+
     def add_customer(self):
+        """Registers a new customer (VIP or regular)."""
         print('*** Customer Addition ***')
         p_id = int(input('Enter your ID: '))
         name = input('Enter your name: ')
@@ -97,10 +107,17 @@ class Airport:
         self.customer_list.append(customer)
 
     def choose_flight(self):
+        """
+        Allows a customer to choose a flight based on their budget and flight availability.
+        Handles adding them to the flight queue and processing suitcase logic:
+            - VIP customers' suitcases are placed above all regulars (LIFO priority).
+            - Non-VIPs must respect a total weight limit (23 kg * max passengers).
+            - Each added customer increases the flight's ticket price by 2%.
+        """
         customer_id = int(input('Enter Customer ID: '))
         budget = int(input('Enter your budget: '))
         customer = None
-        # search for the customer
+        # search for the customer by id
         for c in self.customer_list:
             if customer_id == c.person_id:
                 customer = c
@@ -109,12 +126,16 @@ class Airport:
         if customer is None:
             return "Customer is not found!"
 
+        # Find flights matching budget and seat availability
         possible_flights = [f for f in self.flight_list if f.price <= budget and f.max_pass > f.people_queue.size()]
         if not possible_flights:
             return "No flight for your budget or not free spaces"
         # choosing a flight
+        print('\nAvailable flights:')
         for flight in possible_flights:
             print(flight)
+        
+        # customer chooses flight by id
         choice = int(input('Enter your flight choice: '))
         chosen_flight = None
         for flight in possible_flights:
@@ -124,15 +145,17 @@ class Airport:
         if chosen_flight is None:
             return "Invalid flight choice!"
         
+        # Add customer to flight queue and increase price by 2%
         chosen_flight.people_queue.enqueue(customer)
         chosen_flight.price = chosen_flight.price * 1.02
 
-
+        # suitcase logic
         suitcase_choice = input('Are you flying with a suitcase? ("yes" or "no"): ')
         if suitcase_choice.lower() == 'yes':
             weight = float(input('What is the weight of the suitcase? '))
             suitcase = Suitcase(customer, weight)
 
+            # VIP suitcase handling (priority placement)
             if customer.vip:
                 #If customer is VIP
                 if chosen_flight.suitcase_stack.is_empty():
@@ -149,9 +172,10 @@ class Airport:
                     chosen_flight.suitcase_stack.push(suitcase)
                     while not temp_stack.is_empty():
                         chosen_flight.suitcase_stack.push(temp_stack.pop())
-            
+
+
+            # Regular (non-VIP) suitcase handling with weight limit
             else:
-                # If customer is not VIP
                 max_weight = 23 * chosen_flight.max_pass
                 current_weight = 0
                 temp_stack = Stack()
@@ -184,6 +208,7 @@ class Airport:
 
         return f"{customer.name} was added to flight {chosen_flight.flight_id} to {chosen_flight.dest} successfully!"
 
+        # -------- EMPLOYEE MANAGEMENT --------
 
     def add_employee(self):
         # p_id: int, name: str, age: int, hour_sal: int
@@ -279,6 +304,7 @@ airport = Airport('TLV')
 
 
 def quick_sort(lst):
+    """Sorts a list of (name, salary) tuples in descending order of salary."""
     if len(lst) <= 1:
         return lst
     pivot = lst[0]
