@@ -1,10 +1,6 @@
 from stack_queue import Stack, Queue
 from linked_list import Node, LinkedList
 
-# ======================
-#        CLASSES
-# ======================
-
 class Person:
     def __init__(self, p_id: int, name: str, age: int):
         self.person_id = p_id
