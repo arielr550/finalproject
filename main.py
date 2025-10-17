@@ -225,7 +225,7 @@ class Airport:
         print('*** Work Day Addition ***')
         day = int(input('Enter day: '))
         month = int(input('Enter month: '))
-        work_hours = int(input('Enter amound of work hours: '))
+        work_hours = int(input('Enter amount of work hours: '))
         wd = WorkDay(day, month, work_hours)
         employee.work_day.append(wd)
     
