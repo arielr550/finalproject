@@ -76,8 +76,8 @@ class Airport:
         print('*** Flight Addition ***')
         flight_id = int(input('Enter Flight ID: '))
         dest = input('Enter Destination: ')
-        day = int(input('Enter day date (number): '))
-        month = int(input('Enter month (number): '))
+        day = int(input('Enter day (number 1-31): '))
+        month = int(input('Enter month (number 1-12): '))
         time = int(input('Enter time (number): '))
         max_p = int(input('Enter max passengers: '))
         price = int(input('Enter price: '))
@@ -122,12 +122,14 @@ class Airport:
         
         # check if customer exists
         if customer is None:
-            return "Customer is not found!"
+            print("Customer is not found!")
+            return
 
         # Find flights matching budget and seat availability
         possible_flights = [f for f in self.flight_list if f.price <= budget and f.max_pass > f.people_queue.size()]
         if not possible_flights:
-            return "No flight for your budget or not free spaces"
+            print("No flight for your budget or not free spaces")
+            return
         
         # Display available flights
         print('\nAvailable flights:')
@@ -142,7 +144,8 @@ class Airport:
                 chosen_flight = flight
                 break
         if chosen_flight is None:
-            return "Invalid flight choice!"
+            print("Invalid flight choice!")
+            return
         
         # Add customer to flight queue and increase price by 2%
         chosen_flight.people_queue.enqueue(customer)
@@ -190,7 +193,8 @@ class Airport:
                     while not temp_stack.is_empty():
                         chosen_flight.suitcase_stack.push(temp_stack.pop())
                     chosen_flight.no_suitcase_overweight.append(customer)
-                    return "Suitcase cannot enter - weight limit exceeded!"
+                    print("Suitcase cannot enter - weight limit exceeded!")
+                    return
                 
                 # Add non-vip suitcase at the top of the stack
                 chosen_flight.suitcase_stack.push(suitcase)
@@ -221,7 +225,8 @@ class Airport:
                 employee = emp
                 break
         if employee is None:
-            return 'No such employee!'
+            print('No such employee!')
+            return
         print('*** Work Day Addition ***')
         day = int(input('Enter day: '))
         month = int(input('Enter month: '))
@@ -235,7 +240,8 @@ class Airport:
             if emp.person_id == e_id:
                 employee = emp
         if employee is None:
-            return 'No such employee!'
+            print('No such employee!')
+            return
         month = int(input('Enter month: '))
         total_hours = 0
         current = employee.work_day.head
@@ -254,7 +260,8 @@ class Airport:
                 employee = emp
                 break
         if employee is None:
-            return 'No such employee!'
+            print('No such employee!')
+            return
         total_hours = 0
         current = employee.work_day.head
         while current:
@@ -274,7 +281,8 @@ class Airport:
                 print(f'Flight {flight_id} is landing!')
                 break
         if landing_flight is None:
-            return f'Flight {flight_id} do not exist'
+            print(f'Flight {flight_id} do not exist')
+            return
         
         print('*** Suitcases Incoming ***')
         while not landing_flight.suitcase_stack.is_empty():
@@ -310,18 +318,18 @@ def quick_sort(lst):
 def menu():
     print(f"Welcome to {airport.airport_code} Airport, please select an option: ")
     print('===============================')
-    print('1. Add a flight')
-    print('2. Register new customer')
-    print('3. Get flight recommendation')
-    print('4. View landing flight summary')
-    print('5. Register new employee')
-    print('6. Update employee work hours')
-    print('7. View sorted employee salaries')
-    print('8. Display employee salary by ID')
-    print('Type "quit" to exit')
-    print('===============================')
-
     while True:
+        print('\n1. Add a flight')
+        print('2. Register new customer')
+        print('3. Get flight recommendation')
+        print('4. View landing flight summary')
+        print('5. Register new employee')
+        print('6. Update employee work hours')
+        print('7. View sorted employee salaries')
+        print('8. Display employee salary by ID')
+        print('Type "quit" to exit')
+        print('===============================')
+
         choice = input('\nEnter your choice (1-8 or "quit"): ')
         if choice.lower() == 'quit':
             print('Goodbye!')
